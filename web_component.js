@@ -30,7 +30,7 @@ class FetchWebComponent extends LitElement {
   }
 
   render() {
-    return html` <div>Value from shared module: ${this.value}</div> `;
+    return html` <div>Value from shared module: <code>${this.value}</code></div> `;
   }
 
   dispatchValue() {
