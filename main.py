@@ -1,14 +1,18 @@
+""" Mesop + FastAPI + WebComponent example """
+
 import os
 import random
 import string
-from typing import Any, Callable
 
 import mesop as me
 import mesop.labs as mel
 from fastapi import FastAPI
 from fastapi.middleware.wsgi import WSGIMiddleware
-from pydantic import BaseModel
 
+from web_component.web_component import (
+    Value,
+    web_component,
+)
 
 # FastAPI app
 app = FastAPI()
@@ -40,6 +44,9 @@ def increment(event: me.ClickEvent):  # pylint: disable=unused-argument
     state = me.state(State)
     state.count += 1
 
+    print("trying to call web component")
+    state.webcomponentinput = generate_random_string()
+
 
 @me.page(
     security_policy=me.SecurityPolicy(
@@ -56,12 +63,10 @@ def counter_page():
         me.text(f"count={state.count}")
         me.text(f"state value (from web component doing fetch)={state.value}")
         me.button("Increment", on_click=increment, type="flat")
+        
+        me.box(style=me.Style(height=16))
+        
         web_component(on_value=on_value)
-
-
-# Mesop - Web Component definitions
-class Value(BaseModel):
-    value: str
 
 
 def on_value(e: mel.WebEvent):
@@ -73,16 +78,6 @@ def on_value(e: mel.WebEvent):
     value = Value(**e.value)
     me.state(State).value = value.value
 
-
-@mel.web_component(path="/web_component.js")
-def web_component(on_value: Callable[[mel.WebEvent], Any]):
-    """
-    Mesop definition of included web component that interacts with FastAPI endpoint
-    This will insert the web component into the render tree
-    """
-    mel.insert_web_component(
-        name="fetch-web-component", events={"valueHandlerId": on_value}
-    )
 
 
 # Mesop Page Style
