@@ -1,5 +1,8 @@
 import os
+import random
+import string
 from typing import Any, Callable
+
 import mesop as me
 import mesop.labs as mel
 from fastapi import FastAPI
@@ -9,9 +12,14 @@ from pydantic import BaseModel
 app = FastAPI()
 
 
+def generate_random_string(length=8):
+    characters = string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for _ in range(length))
+
+
 @app.get("/hello")
 def hello():
-    return "foo1"
+    return generate_random_string()
 
 
 @me.stateclass
